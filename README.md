@@ -1,229 +1,207 @@
-README.md
-🚀 MiniRevenueCatSDK
-A Lightweight Kotlin Multiplatform (KMP) Subscription & Entitlement SDK
+# 🚀 MiniRevenueCatSDK  
+### A Lightweight Kotlin Multiplatform (KMP) Subscription & Entitlement SDK  
+### Architected in the style of RevenueCat's Purchases SDK
 
-Architected in the style of RevenueCat’s production SDKs.
+MiniRevenueCatSDK is a fully functional **Kotlin Multiplatform SDK** that demonstrates:
 
-MiniRevenueCatSDK is a Kotlin Multiplatform SDK demonstrating:
+- Shared business logic across Android & iOS  
+- Clean SDK API surface  
+- Thread-safe caching via TTLCache  
+- Retry logic with exponential backoff  
+- Platform-specific implementations via `expect/actual`  
+- Concurrency handling (Mutex, Atomic primitives)  
+- Sample Android app consuming the SDK  
+- Support for Android, iOS, and Compose Multiplatform  
 
-Clean SDK API surface design
+This project mirrors how real commercial subscription SDKs (like **RevenueCat Purchases**) are architected internally.
 
-Cross-platform logic (Android/iOS)
+---
 
-Thread-safe caching (TTL cache)
+## 📦 Modules Overview
 
-Exponential backoff with jitter
+### 1. `mini-sdk-core` (SDK Module - Kotlin Multiplatform)
+- Production-style SDK module
+- Shared code for Android & iOS
+- Contains:
+  - API layer (`PurchasesAPI`)
+  - Business logic (`MiniPurchases`)
+  - Models (`CustomerInfo`, `Entitlement`)
+  - Caching (`TTLCache`)
+  - Retry logic (`ExponentialBackoff`)
+  - Concurrency helpers (`AtomicBoolean`, `AtomicLong`)
+  - Platform abstractions (`expect/actual Logger`)
 
-expect/actual platform code
+### 2. `composeApp` (Sample App - KMP)
+- Jetpack Compose Multiplatform sample
+- Demonstrates integrating and calling the SDK
+- Includes UI, ViewModel, and real usage flows
 
-Shared business logic
+### 3. `iosApp` (Native SwiftUI Sample App)
+- Native iOS app consuming the KMP SDK framework
+- Demonstrates Swift → Kotlin SDK usage
 
-Logging abstraction
+yaml
 
-Simple sample apps (Android, iOS)
 
-It is built as a portfolio-quality SDK representing how real-world subscription SDKs (like RevenueCat Purchases) are architected internally.
+---
 
-📦 Modules
-MiniRevenueCatSDK/
-│
-├── mini-sdk-core/           → Core KMP SDK module
-├── mini-sdk-sample-android/ → Sample Android app (Compose)
-└── mini-sdk-tests/          → Common + platform tests
+## 🧱 Architecture Overview
 
-🧱 Architecture Overview
-┌──────────────────────┐
-│     Sample App       │  (Android / iOS)
-└───────────┬──────────┘
-│ uses
-┌───────────▼──────────┐
-│   MiniPurchases API  │  ← Public entry point
-└───────────┬──────────┘
-│ delegates
-┌───────────▼──────────┐
-│     PurchasesAPI     │  ← Networking (mock)
-└───────────┬──────────┘
-│
-┌───────────▼──────────┐
-│  TTLCache & Backoff  │  ← Infra layer
-└───────────┬──────────┘
-│
-┌───────────▼──────────┐
-│  expect/actual code  │  ← Platform (Logger, HttpClient)
-└──────────────────────┘
+The SDK follows a clean, layered architecture:
 
-✨ Features
-✔ Kotlin Multiplatform shared business logic
-✔ Platform-specific networking + logging
-✔ Clean SDK-style interface
-✔ Thread-safe TTL cache
-✔ Exponential backoff for retry logic
-✔ Sample Android Compose app
-✔ Full test suite
-✔ Modern Gradle KMP configuration
-✔ Industry-standard SDK project structure
-🚀 Getting Started
-1. Installation
+- **Sample Apps (composeApp / iosApp)**
+  - Demonstrate how to consume the SDK
+  - Provide UI to test SDK features
 
-Add the core module to your Gradle project:
+- **MiniPurchases (Public SDK API)**
+  - Main entry point for developers
+  - Manages configuration, user sessions, customer info fetching
 
+- **PurchasesAPI (Networking Layer)**
+  - Fetches customer information
+  - Applies retry logic
+  - Handles backend responses (mocked or real)
+
+- **Infrastructure Layer**
+  - **TTLCache** → Caches responses with time-based invalidation  
+  - **ExponentialBackoff** → Retry strategy for network calls  
+  - **Concurrency utilities** → Atomic types, Mutex wrappers  
+
+- **Platform Layer (expect/actual)**
+  - Logging (Android/iOS)
+  - Environment helpers
+  - Platform-specific APIs
+
+# ✨ **Features**
+
+- ✔ **Kotlin Multiplatform (Android + iOS)**
+- ✔ **Thread-safe TTL cache**
+- ✔ **Exponential backoff with jitter**
+- ✔ **Shared API client abstraction**
+- ✔ **expect/actual platform loggers**
+- ✔ **Sample Android app (Jetpack Compose)**
+- ✔ **Sample iOS app (SwiftUI)**
+- ✔ **Coroutines support**
+- ✔ **AtomicBoolean & AtomicLong concurrency patterns**
+- ✔ **Production-grade SDK structure**
+
+---
+
+# 🚀 Getting Started
+
+## **1. Installation**
+
+Inside your project:
+
+```kotlin
 implementation(project(":mini-sdk-core"))
-
-
-(This repo includes the sample app; for external usage, publish via MavenLocal or a remote artifact repository.)
-
 2. Configure the SDK
-   val purchases = MiniPurchases.configure(
-   apiKey = "test_api_key",
-   appUserId = "user_123"
-   )
+kotlin
 
+val purchases = MiniPurchases.configure(
+    apiKey = "test_api_key",
+    appUserId = "user123"
+)
 3. Fetch Customer Info
-   val customerInfo = purchases.getCustomerInfo()
+val info = purchases.getCustomerInfo()
 
-if (customerInfo != null) {
-println("Active entitlements: ${customerInfo.entitlements}")
+if (info != null) {
+    println("Active entitlements: ${info.entitlements}")
 } else {
-println("Failed to fetch")
+    println("Failed to fetch.")
 }
+📱 Android (Jetpack Compose) Usage
+kotlin
 
-📱 Android Usage (Jetpack Compose Sample)
-val viewModel: MiniViewModel = viewModel()
-val info by viewModel.customerInfo.collectAsState()
+val vm = viewModel<MiniViewModel>()
+val info by vm.customerInfo.collectAsState()
 
-Button(onClick = { viewModel.loadCustomerInfo() }) {
-Text("Fetch Customer Info")
+Button(onClick = { vm.loadCustomerInfo() }) {
+    Text("Fetch Customer Info")
 }
 
 info?.let {
-Text("Active Subscriptions: ${it.activeSubscriptions}")
+    Text("Active Subscriptions: ${it.activeSubscriptions}")
 }
+The sample Android app is located under:
 
 
-The sample Android app is inside:
-
-mini-sdk-sample-android/app/
-
+composeApp/
 🍎 iOS Usage (Swift)
+SwiftUI integration (via KMP framework):
 
-The SDK builds automatically via KMP.
-SwiftUI sample coming soon (see roadmap).
+swift
 
 let purchases = MiniPurchases.companion.configure(
-apiKey: "test_api_key",
-appUserId: "user_123"
+    apiKey: "test_api_key",
+    appUserId: "user123"
 )
 
 purchases.getCustomerInfo { info in
-print(info)
+    print(info)
 }
-
-🧠 Core SDK Concepts
-1. MiniPurchases (public SDK entry point)
-   MiniPurchases.configure(apiKey, userId)
+The native iOS project lives under:
 
 
-This mirrors the Purchases.sharedInstance pattern from RevenueCat.
+iosApp/
+🧠 Project Structure Explained
+mini-sdk-core (SDK module)
+kotlin
 
-2. TTL Cache
+api/          → Network layer abstraction
+backoff/      → Retry logic
+caches/       → TTL cache, Memory cache
+concurrency/  → AtomicBoolean, AtomicLong
+models/       → CustomerInfo, Entitlement, Config
+platform/     → expect/actual Logger + Environment
+purchases/    → MiniPurchases public API
+composeApp (Sample App)
+Jetpack Compose UI
 
-Prevents unnecessary backend calls:
+ViewModel integration
 
-val cache = TTLCache<String, CustomerInfo>(ttl = 10.minutes)
+Real SDK usage
 
-3. Exponential Backoff
+iosApp (Sample iOS app)
+SwiftUI UI
 
-Retry logic:
-
-ExponentialBackoff(
-initialDelay = 100.ms,
-maxDelay = 5.seconds,
-maxRetries = 5
-)
-
-4. expect/actual Platform Code
-   commonMain
-   expect object Logger {
-   fun d(message: String)
-   fun e(message: String)
-   }
-
-androidMain
-actual object Logger {
-override fun d(message: String) = Log.d("MiniSDK", message)
-}
-
-iosMain
-actual object Logger {
-override fun d(message: String) = NSLog("%@", message)
-}
-
-🔍 Project Structure Explained
-mini-sdk-core
-
-Contains the entire SDK:
-
-api/ → network client, response models
-
-purchases/ → main public API
-
-models/ → CustomerInfo, Entitlement
-
-cache/ → in-memory TTL cache
-
-backoff/ → retry logic
-
-concurrency/ → atomic primitives (expect/actual)
-
-platform/ → Logger + Environment (expect/actual)
-
-mini-sdk-sample-android
-
-Shows real integration using:
-
-ViewModel
-
-Compose
-
-StateFlow
-
-Logging
-
-mini-sdk-tests
-
-Unit tests for:
-
-cache
-
-backoff
-
-purchases
+Demonstrates KMP framework usage
 
 🧪 Testing
-
-Run all tests:
+Run SDK tests:
 
 ./gradlew :mini-sdk-core:check
+Includes:
+
+TTLCache tests
+
+Backoff tests
+
+MiniPurchases tests
 
 🛣 Roadmap
+ Real backend integration example
 
-iOS SwiftUI sample app
+ SK2 + BillingClient wrapper
 
-Mock backend server
+ Entitlement computation logic
 
-In-app purchase integration (StoreKit + Google Billing)
+ Offline mode improvements
 
-Entitlement verification
-
-Offline mode
-
-More advanced caching strategies
+ More sample apps
 
 🤝 Contributing
-
-PRs welcome!
-Open an issue if you want to propose new features or improvements.
+Open an Issue or PR!
+Issues for ideas, bugs, or enhancements are welcome.
 
 📄 License
+MIT License
 
-MIT License.
+🙌 Acknowledgements
+This project takes inspiration from:
+
+RevenueCat’s Purchases SDK
+
+Kotlin Multiplatform Architecture
+
+Jetpack Compose / SwiftUI shared code patterns
