@@ -1,4 +1,4 @@
-package com.m01n008.minirevenuecatsdk
+package com.m01n008.minirevenuecatsdk.sample
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

@@ -1,4 +1,4 @@
-package com.m01n008.minirevenuecatsdk
+package com.m01n008.minirevenuecatsdk.sample
 
 import androidx.compose.ui.window.ComposeUIViewController
 

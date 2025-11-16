@@ -40,6 +40,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+            implementation(project(":mini-sdk-core"))
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -50,7 +51,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.m01n008.minirevenuecatsdk"
+    namespace = "com.m01n008.minirevenuecatsdk.sample"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
