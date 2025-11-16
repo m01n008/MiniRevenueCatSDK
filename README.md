@@ -40,8 +40,6 @@ This project mirrors how real commercial subscription SDKs (like **RevenueCat Pu
 - Native iOS app consuming the KMP SDK framework
 - Demonstrates Swift → Kotlin SDK usage
 
-yaml
-
 
 ---
 
@@ -72,6 +70,9 @@ The SDK follows a clean, layered architecture:
   - Environment helpers
   - Platform-specific APIs
 
+
+---
+
 # ✨ **Features**
 
 - ✔ **Kotlin Multiplatform (Android + iOS)**
@@ -95,14 +96,18 @@ Inside your project:
 
 ```kotlin
 implementation(project(":mini-sdk-core"))
-2. Configure the SDK
-kotlin
+```
 
+## **2. Configure the SDK
+
+```kotlin
 val purchases = MiniPurchases.configure(
     apiKey = "test_api_key",
     appUserId = "user123"
 )
-3. Fetch Customer Info
+```
+## **3. Fetch Customer Info
+```kotlin
 val info = purchases.getCustomerInfo()
 
 if (info != null) {
@@ -110,8 +115,9 @@ if (info != null) {
 } else {
     println("Failed to fetch.")
 }
-📱 Android (Jetpack Compose) Usage
-kotlin
+```
+## **📱 Android (Jetpack Compose) Usage
+```kotlin
 
 val vm = viewModel<MiniViewModel>()
 val info by vm.customerInfo.collectAsState()
@@ -123,28 +129,17 @@ Button(onClick = { vm.loadCustomerInfo() }) {
 info?.let {
     Text("Active Subscriptions: ${it.activeSubscriptions}")
 }
+```
 The sample Android app is located under:
 
-
 composeApp/
-🍎 iOS Usage (Swift)
+## 🍎 iOS Usage (Swift)
 SwiftUI integration (via KMP framework):
 
-swift
-
-let purchases = MiniPurchases.companion.configure(
-    apiKey: "test_api_key",
-    appUserId: "user123"
-)
-
-purchases.getCustomerInfo { info in
-    print(info)
-}
 The native iOS project lives under:
 
-
 iosApp/
-🧠 Project Structure Explained
+## 🧠 Project Structure Explained
 mini-sdk-core (SDK module)
 kotlin
 
@@ -167,10 +162,11 @@ SwiftUI UI
 
 Demonstrates KMP framework usage
 
-🧪 Testing
+## 🧪 Testing
 Run SDK tests:
-
+```ruby
 ./gradlew :mini-sdk-core:check
+```
 Includes:
 
 TTLCache tests
@@ -179,7 +175,7 @@ Backoff tests
 
 MiniPurchases tests
 
-🛣 Roadmap
+## 🛣 Roadmap
  Real backend integration example
 
  SK2 + BillingClient wrapper
@@ -190,14 +186,14 @@ MiniPurchases tests
 
  More sample apps
 
-🤝 Contributing
+## 🤝 Contributing
 Open an Issue or PR!
 Issues for ideas, bugs, or enhancements are welcome.
 
-📄 License
+## 📄 License
 MIT License
 
-🙌 Acknowledgements
+## 🙌 Acknowledgements
 This project takes inspiration from:
 
 RevenueCat’s Purchases SDK
