@@ -75,6 +75,7 @@ kotlin {
 
         androidMain {
             dependencies {
+                implementation("io.ktor:ktor-client-okhttp:2.3.7")
                 // Add Android-specific dependencies here. Note that this source set depends on
                 // commonMain by default and will correctly pull the Android artifacts of any KMP
                 // dependencies declared in commonMain.
