@@ -1,35 +1,229 @@
-This is a Kotlin Multiplatform project targeting Android, iOS.
+README.md
+🚀 MiniRevenueCatSDK
+A Lightweight Kotlin Multiplatform (KMP) Subscription & Entitlement SDK
 
-* [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./composeApp/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./composeApp/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./composeApp/src/jvmMain/kotlin)
-    folder is the appropriate location.
+Architected in the style of RevenueCat’s production SDKs.
 
-* [/iosApp](./iosApp/iosApp) contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+MiniRevenueCatSDK is a Kotlin Multiplatform SDK demonstrating:
 
-### Build and Run Android Application
+Clean SDK API surface design
 
-To build and run the development version of the Android app, use the run configuration from the run widget
-in your IDE’s toolbar or build it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:assembleDebug
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:assembleDebug
-  ```
+Cross-platform logic (Android/iOS)
 
-### Build and Run iOS Application
+Thread-safe caching (TTL cache)
 
-To build and run the development version of the iOS app, use the run configuration from the run widget
-in your IDE’s toolbar or open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+Exponential backoff with jitter
 
----
+expect/actual platform code
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+Shared business logic
+
+Logging abstraction
+
+Simple sample apps (Android, iOS)
+
+It is built as a portfolio-quality SDK representing how real-world subscription SDKs (like RevenueCat Purchases) are architected internally.
+
+📦 Modules
+MiniRevenueCatSDK/
+│
+├── mini-sdk-core/           → Core KMP SDK module
+├── mini-sdk-sample-android/ → Sample Android app (Compose)
+└── mini-sdk-tests/          → Common + platform tests
+
+🧱 Architecture Overview
+┌──────────────────────┐
+│     Sample App       │  (Android / iOS)
+└───────────┬──────────┘
+│ uses
+┌───────────▼──────────┐
+│   MiniPurchases API  │  ← Public entry point
+└───────────┬──────────┘
+│ delegates
+┌───────────▼──────────┐
+│     PurchasesAPI     │  ← Networking (mock)
+└───────────┬──────────┘
+│
+┌───────────▼──────────┐
+│  TTLCache & Backoff  │  ← Infra layer
+└───────────┬──────────┘
+│
+┌───────────▼──────────┐
+│  expect/actual code  │  ← Platform (Logger, HttpClient)
+└──────────────────────┘
+
+✨ Features
+✔ Kotlin Multiplatform shared business logic
+✔ Platform-specific networking + logging
+✔ Clean SDK-style interface
+✔ Thread-safe TTL cache
+✔ Exponential backoff for retry logic
+✔ Sample Android Compose app
+✔ Full test suite
+✔ Modern Gradle KMP configuration
+✔ Industry-standard SDK project structure
+🚀 Getting Started
+1. Installation
+
+Add the core module to your Gradle project:
+
+implementation(project(":mini-sdk-core"))
+
+
+(This repo includes the sample app; for external usage, publish via MavenLocal or a remote artifact repository.)
+
+2. Configure the SDK
+   val purchases = MiniPurchases.configure(
+   apiKey = "test_api_key",
+   appUserId = "user_123"
+   )
+
+3. Fetch Customer Info
+   val customerInfo = purchases.getCustomerInfo()
+
+if (customerInfo != null) {
+println("Active entitlements: ${customerInfo.entitlements}")
+} else {
+println("Failed to fetch")
+}
+
+📱 Android Usage (Jetpack Compose Sample)
+val viewModel: MiniViewModel = viewModel()
+val info by viewModel.customerInfo.collectAsState()
+
+Button(onClick = { viewModel.loadCustomerInfo() }) {
+Text("Fetch Customer Info")
+}
+
+info?.let {
+Text("Active Subscriptions: ${it.activeSubscriptions}")
+}
+
+
+The sample Android app is inside:
+
+mini-sdk-sample-android/app/
+
+🍎 iOS Usage (Swift)
+
+The SDK builds automatically via KMP.
+SwiftUI sample coming soon (see roadmap).
+
+let purchases = MiniPurchases.companion.configure(
+apiKey: "test_api_key",
+appUserId: "user_123"
+)
+
+purchases.getCustomerInfo { info in
+print(info)
+}
+
+🧠 Core SDK Concepts
+1. MiniPurchases (public SDK entry point)
+   MiniPurchases.configure(apiKey, userId)
+
+
+This mirrors the Purchases.sharedInstance pattern from RevenueCat.
+
+2. TTL Cache
+
+Prevents unnecessary backend calls:
+
+val cache = TTLCache<String, CustomerInfo>(ttl = 10.minutes)
+
+3. Exponential Backoff
+
+Retry logic:
+
+ExponentialBackoff(
+initialDelay = 100.ms,
+maxDelay = 5.seconds,
+maxRetries = 5
+)
+
+4. expect/actual Platform Code
+   commonMain
+   expect object Logger {
+   fun d(message: String)
+   fun e(message: String)
+   }
+
+androidMain
+actual object Logger {
+override fun d(message: String) = Log.d("MiniSDK", message)
+}
+
+iosMain
+actual object Logger {
+override fun d(message: String) = NSLog("%@", message)
+}
+
+🔍 Project Structure Explained
+mini-sdk-core
+
+Contains the entire SDK:
+
+api/ → network client, response models
+
+purchases/ → main public API
+
+models/ → CustomerInfo, Entitlement
+
+cache/ → in-memory TTL cache
+
+backoff/ → retry logic
+
+concurrency/ → atomic primitives (expect/actual)
+
+platform/ → Logger + Environment (expect/actual)
+
+mini-sdk-sample-android
+
+Shows real integration using:
+
+ViewModel
+
+Compose
+
+StateFlow
+
+Logging
+
+mini-sdk-tests
+
+Unit tests for:
+
+cache
+
+backoff
+
+purchases
+
+🧪 Testing
+
+Run all tests:
+
+./gradlew :mini-sdk-core:check
+
+🛣 Roadmap
+
+iOS SwiftUI sample app
+
+Mock backend server
+
+In-app purchase integration (StoreKit + Google Billing)
+
+Entitlement verification
+
+Offline mode
+
+More advanced caching strategies
+
+🤝 Contributing
+
+PRs welcome!
+Open an issue if you want to propose new features or improvements.
+
+📄 License
+
+MIT License.
