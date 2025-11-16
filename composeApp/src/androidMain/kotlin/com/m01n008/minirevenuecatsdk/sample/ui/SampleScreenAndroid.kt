@@ -1,4 +1,4 @@
-package com.m01n008.minirevenuecatsdk.ui
+package com.m01n008.minirevenuecatsdk.sample.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,8 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.m01n008.minirevenuecat.sdk.models.CustomerInfo
-import com.m01n008.minirevenuecatsdk.ui.components.CustomerInfoCard
-import com.m01n008.minirevenuecatsdk.viewmodel.MiniViewModel
+import com.m01n008.minirevenuecatsdk.sample.MiniViewModel
+import com.m01n008.minirevenuecatsdk.sample.ui.components.CustomerInfoCard
 
 @Composable
 fun MainScreen(viewModel: MiniViewModel = viewModel()){
@@ -50,14 +50,14 @@ fun MainScreen(viewModel: MiniViewModel = viewModel()){
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Text(
-            text = "Built with ❤\uFE0F by Moin Khan",
-            style = MaterialTheme.typography.bodySmall.copy(
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-            ),
-            modifier = Modifier
-                .padding(12.dp)
-                .align(Alignment.CenterHorizontally)
-        )
+     Text(
+         text = "Built with ❤\uFE0F by Moin Khan",
+         style = MaterialTheme.typography.bodySmall.copy(
+             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+         ),
+         modifier = Modifier
+             .padding(12.dp)
+             .align(Alignment.CenterHorizontally)
+     )
     }
 }

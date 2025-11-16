@@ -1,5 +1,4 @@
-package com.m01n008.minirevenuecatsdk.viewmodel
-
+package com.m01n008.minirevenuecatsdk.sample
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
